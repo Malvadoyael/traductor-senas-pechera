@@ -1,0 +1,1 @@
+En esta carpeta irá el dataset (fotos)
