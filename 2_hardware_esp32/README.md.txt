@@ -1,1 +1,4 @@
-AQUI IRÁ EL CÓDIGO DE LA PLACA Y LA CÁMARA
+axaxasxxAQUI IRÁ EL CÓDIGO DE LA PLACA Y LA CÁMARAxsa
+xasxax
+xasxaxasxaxaxaxasxaxasxaxaxa
+xsxasxaxasxaxaxaasxaxaxxsaxss

@@ -1,1 +1,2 @@
-En esta carpeta irá el dataset (fotos)
+En esta carpeta irá el dataset (fotos)ccc
+swssS
