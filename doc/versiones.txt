@@ -6,6 +6,4 @@ java 24.0.2
 
 link del repositorio :  https://github.com/Malvadoyael/traductor-senas-pechera
 
-Hola esta es una prueba
-
 
