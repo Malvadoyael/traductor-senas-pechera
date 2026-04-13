@@ -1,0 +1,9 @@
+versiones
+
+python Python 3.10.11
+
+java 24.0.2
+
+link del repositorio :  https://github.com/Malvadoyael/traductor-senas-pechera
+
+
