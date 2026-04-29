@@ -1,68 +1,72 @@
 import cv2
-import os
+import mediapipe as mp
+import csv
 
-# 1. Configurar la carpeta donde se guardarán las fotos
-carpeta_destino = 'fotos_entrenamiento'
-if not os.path.exists(carpeta_destino):
-    os.makedirs(carpeta_destino)
+# Inicializar MediaPipe para detectar la mano
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.5)
+mp_draw = mp.solutions.drawing_utils
 
-# 2. Iniciar la cámara web (el 0 es la cámara por defecto)
+# El archivo Excel donde se guardarán las matemáticas de tus dedos
+archivo_csv = 'dataset_senas.csv'
+
+# Encender la cámara de tu lap
 cap = cv2.VideoCapture(0)
 
-# Contador para el nombre de las imágenes
-contador = 0
-
-print("=========================================")
-print("Iniciando cámara...")
-print("Pon tu mano dentro del cuadro verde.")
-print("Presiona la tecla 'S' para tomar una foto.")
-print("Presiona la tecla 'Q' para salir.")
-print("=========================================")
+print("=====================================================")
+print(" RECOLECTOR DE DATOS - SENSE AI")
+print("=====================================================")
+print("1. Pon tu mano frente a la cámara (debe salir el esqueleto rojo).")
+print("2. Presiona la letra de la seña en tu teclado (ej. 'A').")
+print("3. Presiona 'ESC' para salir cuando termines.")
+print("=====================================================")
 
 while True:
-    # Leer el cuadro actual de la cámara
-    ret, frame = cap.read()
-    if not ret:
-        print("Error al acceder a la cámara.")
+    success, frame = cap.read()
+    if not success:
         break
-
-    # Voltear la imagen en modo espejo (más intuitivo)
+        
+    # Efecto espejo para mayor comodidad
     frame = cv2.flip(frame, 1)
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = hands.process(frame_rgb)
 
-    # Definir el tamaño y posición del cuadro de enfoque (ROI)
-    # Ajusta estos valores si quieres el cuadro más grande o en otro lado
-    x, y, w, h = 200, 100, 240, 240 
+    # Si detecta la mano, dibuja el esqueleto rojo
+    if results.multi_hand_landmarks:
+        for hand_landmarks in results.multi_hand_landmarks:
+            mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
+    # Mostrar la ventana de video
+    cv2.imshow("Captura de Datos - SENSE AI", frame)
     
-    # Dibujar el rectángulo verde en la pantalla original
-    cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-
-    # Mostrar la ventana
-    cv2.imshow('Captura de Dataset - Pechera ESP32', frame)
-
-    # Escuchar las teclas
-    tecla = cv2.waitKey(1) & 0xFF
-
-    # Si presiona 's', tomamos la foto
-    if tecla == ord('s'):
-        # 1. Recortar solo lo que está dentro del cuadro verde
-        recorte = frame[y:y+h, x:x+w]
-        
-        # 2. Convertir a blanco y negro (escala de grises)
-        escala_grises = cv2.cvtColor(recorte, cv2.COLOR_BGR2GRAY)
-        
-        # 3. Redimensionar a 96x96 pixeles (Obligatorio para el ESP32)
-        imagen_final = cv2.resize(escala_grises, (96, 96))
-        
-        # Guardar la imagen
-        nombre_archivo = f"{carpeta_destino}/sena_{contador}.jpg"
-        cv2.imwrite(nombre_archivo, imagen_final)
-        print(f"Foto {contador} guardada con éxito -> {nombre_archivo}")
-        contador += 1
-
-    # Si presiona 'q', salimos del programa
-    elif tecla == ord('q'):
+    # Leer qué tecla presionaste
+    key = cv2.waitKey(1) & 0xFF
+    
+    # Si presionas ESC (código 27), se cierra el programa
+    if key == 27: 
         break
+    # Si presionas una letra de la 'A' a la 'Z' en tu teclado
+    elif 97 <= key <= 122: 
+        letra_presionada = chr(key).upper()
+        
+        # Solo guarda si realmente está viendo el esqueleto de tu mano
+        if results.multi_hand_landmarks:
+            mano = results.multi_hand_landmarks[0] # Agarra la mano detectada
+            coordenadas = [letra_presionada] # Inicia la fila con la letra ('A')
+            
+            # Extraer las posiciones X y Y de los 21 puntos
+            for punto in mano.landmark:
+                coordenadas.append(punto.x)
+                coordenadas.append(punto.y)
+            
+            # Guardar todo en el archivo .csv
+            with open(archivo_csv, mode='a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(coordenadas)
+                
+            print(f"✅ ¡Guardado un ejemplo para la letra: {letra_presionada}!")
+        else:
+            print("⚠️ No veo el esqueleto. Abre bien la mano primero.")
 
-# Liberar la cámara y cerrar ventanas
 cap.release()
 cv2.destroyAllWindows()

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SENSE AI - Dashboard</title>
+    <style>
+        :root { --bg-main: #0f0f12; --bg-panel: #1a1a20; --accent: #00e5ff; }
+        body { background: var(--bg-main); color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        
+        /* VIDEO CORREGIDO: Se ajusta sin recortar */
+        .video-container {
+            width: 800px; max-width: 100%; background: #000; border-radius: 12px;
+            border: 2px solid #2a2a35; overflow: hidden; margin-bottom: 20px;
+        }
+        #video-ia { width: 100%; height: auto; display: block; }
+
+        .panels { display: flex; gap: 20px; width: 800px; }
+        .panel { background: var(--bg-panel); border-radius: 12px; padding: 20px; border: 1px solid #2a2a35; }
+        .p-det { flex: 1; text-align: center; }
+        .p-con { flex: 3; }
+        
+        #letra-grande { font-size: 48px; color: var(--accent); margin-top: 10px; font-weight: bold; }
+        .caja { background: #0f0f12; padding: 15px; border-radius: 8px; min-height: 40px; margin: 10px 0; font-size: 24px; border: 1px solid #2a2a35; }
+        
+        button { padding: 10px 15px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
+        .btn-hablar { background: var(--accent); }
+        .btn-limpiar { background: transparent; border: 1px solid #ff5252; color: #ff5252; }
+    </style>
+</head>
+<body>
+
+    <div class="video-container">
+        <img src="http://127.0.0.1:5000/video_feed" id="video-ia">
+    </div>
+
+    <div class="panels">
+        <div class="panel p-det">
+            <small style="color: #a0a0a0; letter-spacing: 1px;">DETECCIÓN</small>
+            <div id="letra-grande">--</div>
+        </div>
+
+        <div class="panel p-con">
+            <small style="color: #a0a0a0; letter-spacing: 1px;">CONSTRUCTOR DE FRASES</small>
+            <div class="caja" id="frase">Esperando señas...</div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-hablar" onclick="hablar()">🔊 Hablar</button>
+                <button class="btn-limpiar" onclick="document.getElementById('frase').innerHTML=''">Limpiar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ultimaLetraDetectada = "";
+        
+        // Esta función le pregunta a Python cada 500ms: "¿Qué letra ves?"
+        setInterval(() => {
+            fetch('http://127.0.0.1:5000/get_text')
+                .then(response => response.json())
+                .then(data => {
+                    const letra = data.letra;
+                    document.getElementById('letra-grande').innerText = letra || "--";
+                    
+                    // Si la letra es nueva y no está vacía, la agregamos a la frase
+                    if (letra && letra !== ultimaLetraDetectada) {
+                        const caja = document.getElementById('frase');
+                        if (caja.innerText === "Esperando señas...") caja.innerText = "";
+                        caja.innerText += letra;
+                        ultimaLetraDetectada = letra;
+                    } else if (!letra) {
+                        ultimaLetraDetectada = "";
+                    }
+                });
+        }, 500);
+
+        function hablar() {
+            const texto = document.getElementById('frase').innerText;
+            const synth = window.speechSynthesis;
+            const utterThis = new SpeechSynthesisUtterance(texto);
+            utterThis.lang = 'es-MX';
+            synth.speak(utterThis);
+        }
+    </script>
+</body>
+</html>
