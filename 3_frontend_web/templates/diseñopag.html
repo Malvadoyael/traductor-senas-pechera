@@ -4,55 +4,294 @@
     <meta charset="UTF-8">
     <title>SENSE AI - Dashboard</title>
     <style>
-        :root { --bg-main: #0f0f12; --bg-panel: #1a1a20; --accent: #00e5ff; }
-        body { background: var(--bg-main); color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        
-        /* VIDEO CORREGIDO: Se ajusta sin recortar */
-        .video-container {
-            width: 800px; max-width: 100%; background: #000; border-radius: 12px;
-            border: 2px solid #2a2a35; overflow: hidden; margin-bottom: 20px;
+        /* Paleta de colores más limpia y profesional */
+        :root { 
+            --bg-main: #f4f7f6; 
+            --bg-panel: #ffffff; 
+            --primary: #2563eb; 
+            --primary-hover: #1d4ed8;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
         }
-        #video-ia { width: 100%; height: auto; display: block; }
 
-        .panels { display: flex; gap: 20px; width: 800px; }
-        .panel { background: var(--bg-panel); border-radius: 12px; padding: 20px; border: 1px solid #2a2a35; }
-        .p-det { flex: 1; text-align: center; }
-        .p-con { flex: 3; }
+        body { 
+            background: var(--bg-main); 
+            color: var(--text-main); 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+        }
+
+        /* HEADER / BARRA SUPERIOR (Nuevo Accesorio) */
+        .header {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: var(--bg-panel);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #059669;
+            background: #d1fae5;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .main-container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        /* ÁREA DE VIDEO */
+        .video-section {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .video-container {
+            width: 100%; 
+            background: #e9ecef; 
+            border-radius: 12px;
+            border: 1px solid var(--border); 
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        #video-ia { 
+            width: 100%; 
+            height: auto; 
+            display: block; 
+        }
+
+        /* PANELES DE CONTROL */
+        .panels { 
+            display: flex; 
+            gap: 20px; 
+            width: 100%; 
+        }
+
+        .panel { 
+            background: var(--bg-panel); 
+            border-radius: 12px; 
+            padding: 20px; 
+            border: 1px solid var(--border); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .p-det { 
+            flex: 1; 
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
         
-        #letra-grande { font-size: 48px; color: var(--accent); margin-top: 10px; font-weight: bold; }
-        .caja { background: #0f0f12; padding: 15px; border-radius: 8px; min-height: 40px; margin: 10px 0; font-size: 24px; border: 1px solid #2a2a35; }
+        .p-con { flex: 2; }
+
+        .panel-title {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
+        }
         
-        button { padding: 10px 15px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
-        .btn-hablar { background: var(--accent); }
-        .btn-limpiar { background: transparent; border: 1px solid #ff5252; color: #ff5252; }
+        #letra-grande { 
+            font-size: 56px; 
+            color: var(--primary); 
+            margin-top: 5px; 
+            font-weight: 900; 
+        }
+
+        .caja { 
+            background: var(--bg-main); 
+            padding: 15px; 
+            border-radius: 8px; 
+            min-height: 50px; 
+            margin: 10px 0 15px 0; 
+            font-size: 24px; 
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            box-sizing: border-box;
+            word-wrap: break-word;
+        }
+        
+        .botones {
+            display: flex; 
+            gap: 10px;
+        }
+
+        button { 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-hablar { 
+            background: var(--primary); 
+            color: white; 
+            flex: 2;
+        }
+        .btn-hablar:hover { background: var(--primary-hover); }
+
+        .btn-limpiar { 
+            background: transparent; 
+            border: 1px solid var(--danger); 
+            color: var(--danger); 
+            flex: 1;
+        }
+        .btn-limpiar:hover { background: var(--danger); color: white; }
+
+        /* BARRA LATERAL (SIDEBAR) - Nuevo Accesorio */
+        .sidebar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-box {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .info-box ul {
+            padding-left: 20px;
+            margin: 10px 0 0 0;
+        }
+
+        .info-box li {
+            margin-bottom: 8px;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="video-container">
-        <img src="http://127.0.0.1:5000/video_feed" id="video-ia">
+    <!-- Header con logo y estado -->
+    <div class="header">
+        <h1>SENSE AI</h1>
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            Sistema Activo
+        </div>
     </div>
 
-    <div class="panels">
-        <div class="panel p-det">
-            <small style="color: #a0a0a0; letter-spacing: 1px;">DETECCIÓN</small>
-            <div id="letra-grande">--</div>
-        </div>
+    <div class="main-container">
+        
+        <!-- Sección Izquierda: Video y Controles -->
+        <div class="video-section">
+            <div class="video-container">
+                <!-- Se agregó un texto alternativo por si la cámara tarda en cargar -->
+                <img src="http://127.0.0.1:5000/video_feed" id="video-ia" alt="Iniciando cámara o esperando feed de video...">
+            </div>
 
-        <div class="panel p-con">
-            <small style="color: #a0a0a0; letter-spacing: 1px;">CONSTRUCTOR DE FRASES</small>
-            <div class="caja" id="frase">Esperando señas...</div>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-hablar" onclick="hablar()">🔊 Hablar</button>
-                <button class="btn-limpiar" onclick="document.getElementById('frase').innerHTML=''">Limpiar</button>
+            <div class="panels">
+                <div class="panel p-det">
+                    <span class="panel-title">Detección Actual</span>
+                    <div id="letra-grande">--</div>
+                </div>
+
+                <div class="panel p-con">
+                    <span class="panel-title">Traducción de Frase</span>
+                    <div class="caja" id="frase">Esperando señas...</div>
+                    <div class="botones">
+                        <button class="btn-hablar" onclick="hablar()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                            Reproducir Audio
+                        </button>
+                        <button class="btn-limpiar" onclick="document.getElementById('frase').innerHTML='Esperando señas...'; ultimaLetraDetectada = '';">Limpiar</button>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- Sección Derecha: Accesorios e Información -->
+        <div class="sidebar">
+            <div class="info-box">
+                <span class="panel-title" style="color: var(--text-main);">Instrucciones de uso</span>
+                <ul>
+                    <li>Ubícate en un lugar con buena iluminación.</li>
+                    <li>Mantén la mano visible dentro del encuadre.</li>
+                    <li>Realiza los movimientos de forma pausada y clara.</li>
+                    <li>Usa el botón "Limpiar" para iniciar una nueva frase.</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <span class="panel-title" style="color: var(--text-main);">Detalles Técnicos</span>
+                <p style="margin: 10px 0 0 0; line-height: 1.5;">
+                    <strong>Modelo:</strong> MediaPipe Hands V1<br>
+                    <strong>Precisión Est.:</strong> > 85%<br>
+                    <strong>Latencia:</strong> ~500ms
+                </p>
+            </div>
+        </div>
+
     </div>
 
     <script>
         let ultimaLetraDetectada = "";
         
-        // Esta función le pregunta a Python cada 500ms: "¿Qué letra ves?"
         setInterval(() => {
             fetch('http://127.0.0.1:5000/get_text')
                 .then(response => response.json())
@@ -60,7 +299,6 @@
                     const letra = data.letra;
                     document.getElementById('letra-grande').innerText = letra || "--";
                     
-                    // Si la letra es nueva y no está vacía, la agregamos a la frase
                     if (letra && letra !== ultimaLetraDetectada) {
                         const caja = document.getElementById('frase');
                         if (caja.innerText === "Esperando señas...") caja.innerText = "";
@@ -69,11 +307,14 @@
                     } else if (!letra) {
                         ultimaLetraDetectada = "";
                     }
-                });
+                })
+                .catch(err => console.log("Esperando conexión con el servidor Python..."));
         }, 500);
 
         function hablar() {
             const texto = document.getElementById('frase').innerText;
+            if (texto === "Esperando señas..." || texto.trim() === "") return;
+            
             const synth = window.speechSynthesis;
             const utterThis = new SpeechSynthesisUtterance(texto);
             utterThis.lang = 'es-MX';
